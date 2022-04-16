@@ -1,100 +1,199 @@
+use rand::{thread_rng, Rng};
 
 
 pub type Color = [f32; 4];
 pub type Position = (f64, f64);
 pub type Coord = Vec<[f64; 2]> ;
+pub type ScreenSize = (f64, f64);
 
 #[derive(Copy, Clone)]
 pub enum Direction {
     LEFT, UP, RIGHT, DOWN
 }
 
-const HERO_COLOR: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
-const PLAYER_SPEED: f64 = 30.0;
-
 pub struct Game {
-    width: f64, 
-    height: f64,
-    player: Spaceship,
+    player: Player,
+    stars: Vec<Star>,
 }
 
 impl Game {
+
+    pub const STAR_COUNT:i32 = 100;
+
+
     pub fn new(width: f64, height: f64) -> Game {
+       let screen_size = (width, height);
+
+       let stars  = (0..Game::STAR_COUNT)
+            .map(|_| -> Star { Star::new(screen_size)})
+            .collect();
+
+
         Game {
-            width: width,
-            height: height,
-            player: Spaceship::new(
-                HERO_COLOR ,
-                25.0,                    
-                Direction::UP,
-                (width/2.0, height-30.0)                    
-            )
+            player: Player::new(screen_size),
+            stars: stars
         }
     }
 
-    pub fn objects(&self)-> Vec<Box<& dyn SpaceObject>> {
-        vec![Box::new(&self.player)]
+    fn update_stars(&mut self) {
+        let mut new_stars:Vec<Star> = vec![];
+
+        for star in self.stars.iter_mut() {
+            let new_star = star.fall();
+            new_stars.push(new_star);
+        }
+
+        self.stars = new_stars;
+    }
+
+    pub fn next_tick(&mut self)-> Vec<Box<& dyn SpaceObject>> {
+        let mut objects:Vec<Box<& dyn SpaceObject>> = vec![];
+
+        self.update_stars();
+        for star in &self.stars {            
+            objects.push(Box::new(star));
+        }
+
+        objects.push(Box::new(&self.player));
+
+        objects
     }
 
     pub fn move_player(&mut self, direction: Direction) {
-        let (cur_x, cur_y) =  self.player.position;
-        let new_x = match direction {
-            Direction::LEFT => min(cur_x + PLAYER_SPEED, self.width),
-            _ => max(cur_x - PLAYER_SPEED, 0.0),
-        };
-        self.player.move_to((new_x, cur_y));
+        self.player.move_to(direction);
     }
 }
 
 pub trait SpaceObject {
     fn color(&self) -> Color;
     fn direction(&self) -> Direction;
-    fn coord(&self) -> Coord;
+    fn position(&self) -> Position;
+    fn size(&self) -> f64;
+    fn coord(&self) -> Coord  {
+        let (x, y) = self.position();
+        let direction_y:f64 = match self.direction() {
+            Direction::UP =>  y - self.size(),
+            _ =>  y + self.size(),
+        };
+
+        vec![[x-self.size(), y], [x, direction_y], [x+self.size(), y]]
+    }
 }
 
-pub struct Spaceship {
-    size: f64,
-    color: Color,
-    direction: Direction,
+pub struct Player {
     position: Position,
+    screen_size: ScreenSize
 }
 
-impl Spaceship {
-    pub fn new(color: Color, size: f64, direction: Direction, position: Position) -> Spaceship {
-        Spaceship {
-            size : size,
-            color: color,
-            direction: direction,
-            position: position
+impl Player {
+    pub const COLOR: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
+    pub const SPEED: f64 = 30.0;
+    pub const SIZE: f64 = 25.0;
+    pub const DIRECTION: Direction = Direction::UP;
+
+    pub fn new(screen_size: ScreenSize) -> Player {
+        let (width, height) = screen_size;
+        Player {
+            position: (width/2.0, height-30.0),
+            screen_size: screen_size
         }
     }
 
-    pub fn move_to(&mut self, new_pos: Position) {
-        self.position = new_pos;
+    pub fn move_to(&mut self, direction: Direction) {
+        let (width, _) = self.screen_size;
+        let (cur_x, cur_y) =  self.position;
+        let new_x = match direction {
+            Direction::LEFT => min(cur_x + Player::SPEED, width),
+            _ => max(cur_x - Player::SPEED, 0.0),
+        };
+        self.position = (new_x, cur_y);
     }
-
 }
 
-impl SpaceObject for Spaceship {
+impl SpaceObject for Player {
     
     fn color(&self) -> Color {
-        self.color
+        Player::COLOR
     }
 
     fn direction(&self) -> Direction {
-        self.direction
+        Player::DIRECTION
+    }
+
+    fn size(&self) -> f64 {
+        Player::SIZE
+    }
+    
+    fn position(&self) -> Position {
+        self.position
+    }
+}
+
+#[derive(Copy, Clone)]
+pub struct Star {
+    size: f64,
+    position: Position,
+    screen_size: ScreenSize
+}
+
+impl Star {
+    pub const COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
+    pub const SPEED: f64 = 5.0;
+
+    fn new(screen_size: ScreenSize) -> Star {
+        let mut rng = thread_rng();
+        
+        let (width, height) = screen_size;
+        let gen_x = rng.gen_range(0..(width as i32));
+        let gen_y = rng.gen_range(0..(height as i32)); 
+        let size:i32 = rng.gen_range(1..=4);
+
+        Star {
+            size: f64::from(size),
+            position: (f64::from(gen_x), f64::from(gen_y)),
+            screen_size: screen_size
+        }
+    }
+
+    fn fall(&mut self) -> Star {
+        let (_, height) = self.screen_size;
+        let (cur_x, cur_y) = self.position();
+        let new_y = if cur_y + Star::SPEED < height { cur_y + Star::SPEED } else { 0.0};
+
+        Star {
+            position: (cur_x, new_y),
+            size: self.size(),
+            screen_size: self.screen_size
+        }
+    }
+}
+
+impl SpaceObject for Star {
+    
+    fn color(&self) -> Color {
+        Star::COLOR
+    }
+
+    fn direction(&self) -> Direction {
+        Player::DIRECTION
+    }
+
+    fn size(&self) -> f64 {
+        self.size
+    }
+    
+    fn position(&self) -> Position {
+        self.position
     }
 
     fn coord(&self) -> Coord {
-        let (x, y) = self.position;
-        let direction_y:f64 = match self.direction {
-            Direction::UP =>  y - self.size,
-            _ =>  y + self.size,
-        };
-
-        vec![[x-self.size, y], [x, direction_y], [x+self.size, y]]
+        let (x, y) = self.position();
+        let size = self.size();
+        vec![[x, y], [x+size, y], [x+size, y+size], [x, y+size]]
     }
 }
+
+
 
 fn min(x:f64, y:f64) -> f64 {
     if x < y { x } else { y }

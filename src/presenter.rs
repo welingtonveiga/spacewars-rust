@@ -1,3 +1,4 @@
+
 use piston::input::{GenericEvent, Button, Key, MouseButton};
 use graphics::{Context};
 use opengl_graphics::{GlGraphics};
@@ -21,12 +22,13 @@ impl Presenter {
     }
 
     pub fn render(&mut self, context: Context, graphics: &mut GlGraphics) {        
-        self.scene.draw(context, graphics, self.game.objects());
+        self.scene.draw(context, graphics, self.game.next_tick());
     }
 
     pub fn event<E: GenericEvent>(&mut self, e: &E) {
-       
-        if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {            
+     
+
+        if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {     
             // Find coordinates relative to upper left corner.
             println!("Mouse Click!");
         }

@@ -3,7 +3,6 @@ extern crate graphics;
 extern crate opengl_graphics;
 extern crate piston;
 
-
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
@@ -21,6 +20,7 @@ mod scene;
 
 const WINDOW_WIDTH:f64 = 800.0;
 const WINDOW_HEIGHT:f64 = 600.0;
+const FRAMES_PER_SECOND:u64 = 40;
 
 fn main() {
     // Change this to OpenGL::V2_1 if not working.
@@ -29,6 +29,8 @@ fn main() {
     // Create an Glutin window.
     let mut window: Window = WindowSettings::new("Space Wars", [WINDOW_WIDTH, WINDOW_HEIGHT])
         .graphics_api(opengl)
+        .fullscreen(false)
+        .vsync(true)
         .exit_on_esc(true)
         .build()
         .unwrap();
@@ -41,10 +43,13 @@ fn main() {
     let game = Game::new(WINDOW_WIDTH, WINDOW_HEIGHT);
     let mut presenter = Presenter::new(scene, game);
 
-    let mut events = Events::new(EventSettings::new());
+    let mut event_settings = EventSettings::new();
+    event_settings.max_fps = FRAMES_PER_SECOND;
+
+    let mut events = Events::new(event_settings);
     while let Some(e) = events.next(&mut window) {
         presenter.event(&e);
-        
+
         if let Some(args) = e.render_args() {
             
             gl.draw(args.viewport(), |c, g| {
