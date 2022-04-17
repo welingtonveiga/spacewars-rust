@@ -26,7 +26,6 @@ impl Presenter {
     }
 
     pub fn event<E: GenericEvent>(&mut self, e: &E) {
-     
 
         if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {     
             // Find coordinates relative to upper left corner.
