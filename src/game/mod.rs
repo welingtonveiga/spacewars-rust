@@ -1,5 +1,5 @@
 use rand::{thread_rng, Rng};
-use std::time::{Instant, Duration};
+use std::time::{Instant};
 
 use crate::game::space_objects::*;
 use crate::game::player::*;
@@ -28,6 +28,7 @@ impl Game {
 
     pub const STAR_COUNT: i32 = 100;
     pub const ENEMY_FREQUENCY: f64 = 0.015;
+    pub const ENEMY_ATTACK_FREQUENCY: f64 = 0.01;
     pub const PLAYER_ATTACK_FREQUENCE: u64 = 200;
 
     pub fn new(width: f64, height: f64) -> Game {
@@ -72,7 +73,17 @@ impl Game {
     }
 
     fn update_shots(&mut self) {
-        self.shots.iter_mut().for_each(|shot| shot.update())
+        self.shots.iter_mut().for_each(|shot| shot.update());
+    }
+
+    fn generate_enemy_shots(&mut self, rate: f64) {
+        let mut random = thread_rng();
+        for enemy in self.enemies.iter_mut() {
+            if random.gen_bool(rate)  {
+                let shot = enemy.attack();
+                self.shots.push(shot);
+            }
+        }
     }
 
     pub fn next_tick(&mut self)-> Vec<Box<& dyn SpaceObject>> {
@@ -80,7 +91,12 @@ impl Game {
 
         self.update_stars();
         self.update_enemies();
+        self.generate_enemy_shots(Game::ENEMY_ATTACK_FREQUENCY);
         self.update_shots();
+        
+        for shot in &self.shots {
+            objects.push(Box::new(shot));
+        }
 
         for star in &self.stars {            
             objects.push(Box::new(star));
@@ -88,10 +104,6 @@ impl Game {
         
         for enemy in &self.enemies {
             objects.push(Box::new(enemy));
-        }
-
-        for shot in &self.shots {
-            objects.push(Box::new(shot));
         }
 
         objects.push(Box::new(&self.player));
@@ -118,6 +130,7 @@ impl Game {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::time::{Duration};
 
     #[test]
     fn fire_player_attack_should_add_new_shot_when_called() {
@@ -208,4 +221,37 @@ mod tests {
         // Assert
         assert_eq!(game.last_attack, last_attack);
     }
+
+    #[test]
+    fn generate_enemy_shots_should_add_attacks_for_each_enemy_when_rate_is_one() {
+        // Arrange
+        let shoot_frequence = 1.0;
+
+        let mut game = Game::new(800.0, 600.0);      
+        game.enemies = vec![Enemy::new(game.screen_size), Enemy::new(game.screen_size)];
+
+        // Act
+        game.generate_enemy_shots(shoot_frequence);
+
+
+        // Assert
+        assert_eq!(game.shots.len(), 2);
+    }
+
+    #[test]
+    fn generate_enemy_shots_should_not_add_attacks_when_rate_is_zero() {
+        // Arrange
+        let shoot_frequence = 0.0;
+
+        let mut game = Game::new(800.0, 600.0);      
+        game.enemies = vec![Enemy::new(game.screen_size), Enemy::new(game.screen_size)];
+
+        // Act
+        game.generate_enemy_shots(shoot_frequence);
+
+
+        // Assert
+        assert_eq!(game.shots.len(), 0);
+    }
+
 }

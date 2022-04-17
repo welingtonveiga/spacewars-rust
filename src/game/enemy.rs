@@ -1,5 +1,6 @@
 use rand::{thread_rng, Rng};
 use crate::game::space_objects::*;
+use crate::game::shot::*;
 
 #[derive(Copy, Clone)]
 pub struct Enemy {
@@ -55,6 +56,10 @@ impl Enemy {
     fn calculate_y_move(&self)-> f64 {
         let (_, curr_y) = self.position();
         curr_y + Enemy::Y_SPEED
+    }
+
+    pub fn attack(&self) -> Shot {
+        Shot::new(self.position(), Enemy::DIRECTION)
     }
 }
 
