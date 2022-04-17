@@ -4,11 +4,30 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Space Wars",
+            "name": "Space Wars [Run]",
             "cargo": {
                 "args": [
                     "run"
                 ],
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Space Wars [Test]",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=spacewars",
+                    "--package=spacewars"
+                ],
+                "filter": {
+                    "name": "spacewars",
+                    "kind": "bin"
+                }
             },
             "args": [],
             "cwd": "${workspaceFolder}"

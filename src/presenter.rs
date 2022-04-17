@@ -28,22 +28,25 @@ impl Presenter {
     pub fn event<E: GenericEvent>(&mut self, e: &E) {
 
         if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {     
-            // Find coordinates relative to upper left corner.
-            println!("Mouse Click!");
+            self.fire_attack();
         }
+        
         if let Some(Button::Keyboard(key)) = e.press_args() {
-            println!("Keyboard Click!");
-            println!("{:#?}", key);
             match key {
-                Key::Right => self.move_hero(Direction::LEFT),
-                Key::Left => self.move_hero(Direction::RIGHT),               
+                Key::Right => self.move_player(Direction::LEFT),
+                Key::Left => self.move_player(Direction::RIGHT),   
+                Key::Space => self.fire_attack(),               
                 _ => {}
             }
         }
     }
 
-    pub fn move_hero(&mut self, direction: Direction) {
+    pub fn move_player(&mut self, direction: Direction) {
         self.game.move_player(direction);
+    }
+
+    pub fn fire_attack(&mut self) {
+        self.game.fire_player_attack();
     }
 }
 

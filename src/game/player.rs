@@ -1,4 +1,5 @@
 use crate::game::space_objects::*;
+use crate::game::shot::*;
 
 pub struct Player {
     position: Position,
@@ -27,6 +28,10 @@ impl Player {
             _ => max(cur_x - Player::SPEED, 0.0),
         };
         self.position = (new_x, cur_y);
+    }
+
+    pub fn attack(&self) -> Shot {
+        Shot::new(self.position(), Player::DIRECTION)
     }
 }
 
