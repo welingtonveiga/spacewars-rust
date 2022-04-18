@@ -8,7 +8,10 @@ pub enum Direction {
     LEFT, UP, RIGHT, DOWN
 }
 
+const SCREEN_MARGIN: f64 = 20.0;
+
 pub trait SpaceObject {
+    
     fn color(&self) -> Color;
     
     fn direction(&self) -> Direction;
@@ -26,6 +29,16 @@ pub trait SpaceObject {
 
         vec![[x-self.size(), y], [x, direction_y], [x+self.size(), y]]
     }
+
+    fn is_visible(&self, screen_size: ScreenSize) -> bool {
+        let (x, y) = self.position();
+        let (width, height) = screen_size;
+
+        x < width + SCREEN_MARGIN 
+            && x > - SCREEN_MARGIN  
+            && y < height + SCREEN_MARGIN 
+            && y > - SCREEN_MARGIN 
+    }
 }
 
 pub fn min(x:f64, y:f64) -> f64 {
@@ -34,4 +47,111 @@ pub fn min(x:f64, y:f64) -> f64 {
 
 pub fn max(x:f64, y:f64) -> f64 {
     if x > y { x } else { y }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct DummyObject {
+        position: Position        
+    }
+
+    impl SpaceObject for DummyObject {
+        fn color(&self) -> Color {  [1.0, 1.0, 1.0, 1.0] }
+        fn direction(&self) -> Direction { Direction::DOWN }
+        fn size(&self) -> f64 {  50.0 }
+        fn position(&self) -> Position { self.position}
+    }
+
+    #[test]
+    fn is_visible_should_return_true_when_object_is_in_the_middle_of_screen() {
+        // Arrange
+        let (width, height) = (100.0, 100.0);
+        let space_object = DummyObject {
+            position: (width/2.0, height/2.0)
+        };
+
+        // Act
+        let visible = space_object.is_visible((width, height));
+
+        // Assert
+        assert!(visible);
+    }
+
+    #[test]
+    fn is_visible_should_return_false_when_object_x_is_greater_than_the_width_plus_margin() {
+        // Arrange
+        let (width, height) = (100.0, 100.0);
+        let space_object = DummyObject {
+            position: (width + SCREEN_MARGIN + 1.0, height/2.0)
+        };
+
+        // Act
+        let visible = space_object.is_visible((width, height));
+
+        // Assert
+        assert_eq!(visible, false);
+    }
+
+    #[test]
+    fn is_visible_should_return_false_when_object_x_is_lower_than_the_minus_margin() {
+        // Arrange
+        let (width, height) = (100.0, 100.0);
+        let space_object = DummyObject {
+            position: (-1.0 * SCREEN_MARGIN - 1.0, height/2.0)
+        };
+
+        // Act
+        let visible = space_object.is_visible((width, height));
+
+        // Assert
+        assert_eq!(visible, false);
+    }
+
+    #[test]
+    fn is_visible_should_return_false_when_object_y_is_greater_than_the_height_plus_margin() {
+        // Arrange
+        let (width, height) = (100.0, 100.0);
+        let space_object = DummyObject {
+            position: (width/2.0, height + SCREEN_MARGIN + 1.0)
+        };
+
+        // Act
+        let visible = space_object.is_visible((width, height));
+
+        // Assert
+        assert_eq!(visible, false);
+    }
+
+    #[test]
+    fn is_visible_should_return_false_when_object_y_is_lower_than_the_minus_margin() {
+        // Arrange
+        let (width, height) = (100.0, 100.0);
+        let space_object = DummyObject {
+            position: (width/2.0, -1.0 * SCREEN_MARGIN - 1.0)
+        };
+
+        // Act
+        let visible = space_object.is_visible((width, height));
+
+        // Assert
+        assert_eq!(visible, false);
+    }
+
+
+    #[test]
+    fn is_visible_should_return_true_when_object_is_on_the_first_corner() {
+        // Arrange
+        let (width, height) = (100.0, 100.0);
+        let space_object = DummyObject {
+            position: (0.0, 0.0)
+        };
+
+        // Act
+        let visible = space_object.is_visible((width, height));
+
+        // Assert
+        assert!(visible);
+    }
 }

@@ -1,5 +1,6 @@
 use crate::game::space_objects::*;
 
+#[derive(Copy, Clone, Debug)]
 pub struct Shot {
     position: Position,
     direction: Direction
@@ -17,7 +18,7 @@ impl Shot {
         }
     }
 
-    pub fn update(&mut self) {
+    pub fn action(&mut self) {
         let (cur_x, cur_y) = self.position;
         let new_y = match self.direction() {
             Direction::UP => cur_y - Shot::SPEED,
@@ -61,7 +62,7 @@ mod tests {
         let mut shot = Shot::new(position, direction);
 
         // Act
-        shot.update();
+        shot.action();
 
         // Assert
         let (new_x, _) = shot.position;
@@ -77,7 +78,7 @@ mod tests {
         let mut shot = Shot::new(position, direction);
 
         // Act
-        shot.update();
+        shot.action();
 
         // Assert
         let (_, new_y) = shot.position;
@@ -93,7 +94,7 @@ mod tests {
         let mut shot = Shot::new(position, direction);
 
         // Act
-        shot.update();
+        shot.action();
 
         // Assert
         let (_, new_y) = shot.position;
@@ -109,7 +110,7 @@ mod tests {
         let mut shot = Shot::new(position, direction);
 
         // Act
-        shot.update();
+        shot.action();
     }
 
 }

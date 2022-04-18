@@ -22,7 +22,8 @@ impl Presenter {
     }
 
     pub fn render(&mut self, context: Context, graphics: &mut GlGraphics) {        
-        self.scene.draw(context, graphics, self.game.next_tick());
+        self.game.next_turn();
+        self.scene.draw(context, graphics, self.game.as_space_objects());
     }
 
     pub fn event<E: GenericEvent>(&mut self, e: &E) {

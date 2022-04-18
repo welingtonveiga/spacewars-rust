@@ -28,16 +28,12 @@ impl Star {
         }
     }
 
-    pub fn fall(&mut self) -> Star {
+    pub fn fall(&mut self) {
         let (_, height) = self.screen_size;
         let (cur_x, cur_y) = self.position();
         let new_y = if cur_y + Star::SPEED < height { cur_y + Star::SPEED } else { 0.0};
 
-        Star {
-            position: (cur_x, new_y),
-            size: self.size(),
-            screen_size: self.screen_size
-        }
+        self.position =  (cur_x, new_y);
     }
 }
 
