@@ -1,10 +1,9 @@
-use crate::game::space_objects::*;
+use crate::game::game_objects::*;
 use crate::game::player::*;
 use crate::game::spaceship::*;
 use std::time::{Instant};
 
 pub struct Hero {
-    destroyed: bool,
     spaceship: Spaceship,
     last_attack: Option<Instant>,
 }
@@ -19,7 +18,6 @@ impl Hero {
     pub fn new(screen_size: ScreenSize) -> Hero {
         let (width, height) = screen_size;
         Hero {
-            destroyed: false,
             last_attack: None,
             spaceship: Spaceship::new (
                 (width/2.0, height-30.0),
@@ -59,12 +57,13 @@ impl Hero {
 }
 
 impl Player for Hero {
-    fn is_destroyed(&self) -> bool {
-        self.destroyed
-    }
 
     fn spaceship(&self) -> &Spaceship {
-       &self.spaceship
+        &self.spaceship
+    }
+
+    fn spaceship_mut(&mut self) -> &mut Spaceship {
+        &mut self.spaceship
     }
 
     fn action(&mut self) {

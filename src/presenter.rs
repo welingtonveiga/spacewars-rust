@@ -1,29 +1,40 @@
 
 use piston::input::{GenericEvent, Button, Key, MouseButton};
-use graphics::{Context};
-use opengl_graphics::{GlGraphics};
+use graphics::{Context, Polygon, Transformed, text};
+use opengl_graphics::{GlGraphics, GlyphCache};
 
 use crate::game::{Game, Direction};
-use crate::scene::Scene;
-
 
 pub struct Presenter {
-    scene:  Scene,  
     game:  Game,      
 }
 
 impl Presenter {
 
-    pub fn new( scene: Scene, game: Game) -> Presenter {
+    pub fn new(game: Game) -> Presenter {
         Presenter {
-            scene: scene,
             game: game
         }
     }
 
-    pub fn render(&mut self, context: Context, graphics: &mut GlGraphics) {        
+    pub fn render(&mut self, context: Context, graphics: &mut GlGraphics, glyphs: &mut GlyphCache) {        
         self.game.next_turn();
-        self.scene.draw(context, graphics, self.game.as_space_objects());
+
+        for object in self.game.space_objects().iter() {            
+            Polygon::new(object.color())
+                .draw(&object.coord(), &context.draw_state, context.transform, graphics);   
+        }     
+
+        for  text in self.game.texts().iter() {  
+            let (position_x, position_y) = text.position();
+            text::Text::new_color(text.color(), text.font_size()).draw(
+                &text.content(),
+                glyphs,
+                &context.draw_state,
+                context.trans(position_x, position_y).transform, 
+                graphics
+            ).unwrap(); 
+        }       
     }
 
     pub fn event<E: GenericEvent>(&mut self, e: &E) {

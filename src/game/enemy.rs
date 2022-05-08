@@ -1,10 +1,9 @@
 use rand::{thread_rng, Rng};
-use crate::game::space_objects::*;
+use crate::game::game_objects::*;
 use crate::game::player::*;
 use crate::game::spaceship::*;
 
 pub struct Enemy {
-    destroyed: bool,
     spaceship: Spaceship,
     attack_rate: f64,
 }
@@ -27,7 +26,6 @@ impl Enemy {
         let gen_x = random.gen_range(min_x..max_x);       
        
        Enemy {
-        destroyed: false,
         attack_rate: Enemy::INITIAL_ATTACK_RATE,
         spaceship: Spaceship::new (
                 (f64::from(gen_x), Enemy::Y_START),
@@ -78,12 +76,13 @@ impl Enemy {
 
 
 impl Player for Enemy {
-    fn is_destroyed(&self) -> bool {
-        self.destroyed
-    }
 
     fn spaceship(&self) -> &Spaceship {
-       &self.spaceship
+        &self.spaceship
+    }
+
+    fn spaceship_mut(&mut self) -> &mut Spaceship {
+        &mut self.spaceship
     }
 
     fn action(&mut self) {

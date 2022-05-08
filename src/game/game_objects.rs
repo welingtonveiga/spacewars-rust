@@ -2,6 +2,7 @@ pub type Color = [f32; 4];
 pub type Position = (f64, f64);
 pub type Coord = Vec<[f64; 2]> ;
 pub type ScreenSize = (f64, f64);
+pub type FontSize = u32;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Direction {
@@ -9,6 +10,8 @@ pub enum Direction {
 }
 
 const SCREEN_MARGIN: f64 = 20.0;
+
+const MIN_DISTANCE: f64 = 20.0;
 
 pub trait SpaceObject {
     
@@ -39,7 +42,51 @@ pub trait SpaceObject {
             && y < height + SCREEN_MARGIN 
             && y > - SCREEN_MARGIN 
     }
+
+    fn check_collision(&self, other: &dyn SpaceObject) -> bool {
+        let (x, y) = self.position();
+        let (other_x, other_y) = other.position();
+
+        (x - other_x).abs() < MIN_DISTANCE
+        && (y - other_y).abs() < MIN_DISTANCE
+    }
 }
+
+pub struct GameText {
+    content: String,
+    color: Color,
+    font_size: FontSize,
+    position: Position
+}
+
+impl GameText {
+    pub fn new( content: String, color: Color, font_size: FontSize, position: Position) -> GameText {
+            GameText {
+                content: content,
+                color: color,
+                font_size: font_size,
+                position: position
+            }
+    }
+
+    pub fn content(&self) -> String {
+        self.content.clone()
+    }
+
+    pub fn color(&self) -> Color {
+        self.color
+    }
+
+    pub fn font_size(&self) -> FontSize {
+        self.font_size
+    }
+
+    pub fn position(&self) -> Position {
+        self.position
+    }
+}
+
+
 
 pub fn min(x:f64, y:f64) -> f64 {
     if x < y { x } else { y }
@@ -153,5 +200,134 @@ mod tests {
 
         // Assert
         assert!(visible);
+    }
+
+    #[test]
+    fn check_collision_should_return_true_when_the_objects_are_at_same_place() {
+        // Arrange
+        let (x, y) = (100.0, 100.0);
+       
+        let space_object = DummyObject {
+            position: (x, y)
+        };
+
+        let other = DummyObject {
+            position: (x, y)
+        };
+
+
+        // Act
+        let collision = space_object.check_collision(&other);
+
+        // Assert
+        assert!(collision);
+    }
+
+    #[test]
+    fn check_collision_should_return_false_when_the_objects_x_is_farther_than_min_distance() {
+        // Arrange
+        let (x, y) = (100.0, 100.0);
+       
+        let space_object = DummyObject {
+            position: (x, y)
+        };
+
+        let other = DummyObject {
+            position: (x + MIN_DISTANCE + 1.0, y)
+        };
+
+
+        // Act
+        let collision = space_object.check_collision(&other);
+
+        // Assert
+        assert_eq!(collision, false);
+    }
+
+    #[test]
+    fn check_collision_should_return_false_when_the_objects_y_is_farther_than_min_distance() {
+        // Arrange
+        let (x, y) = (100.0, 100.0);
+       
+        let space_object = DummyObject {
+            position: (x, y)
+        };
+
+        let other = DummyObject {
+            position: (x , y + MIN_DISTANCE + 5.0)
+        };
+
+
+        // Act
+        let collision = space_object.check_collision(&other);
+
+        // Assert
+        assert_eq!(collision, false);
+    }
+
+
+    #[test]
+    fn check_collision_should_return_false_when_the_objects_x_and_y_is_farther_than_min_distance() {
+        // Arrange
+        let (x, y) = (100.0, 100.0);
+       
+        let space_object = DummyObject {
+            position: (x, y)
+        };
+
+        let other = DummyObject {
+            position: (x  + MIN_DISTANCE + 12.0, y + MIN_DISTANCE + 5.0)
+        };
+
+
+        // Act
+        let collision = space_object.check_collision(&other);
+
+        // Assert
+        assert_eq!(collision, false);
+    }
+
+
+
+    #[test]
+    fn check_collision_should_return_false_when_the_objects_x_is_closer_than_min_distance() {
+        // Arrange
+        let (x, y) = (100.0, 100.0);
+       
+        let space_object = DummyObject {
+            position: (x, y)
+        };
+
+        let other = DummyObject {
+            position: (x + MIN_DISTANCE - 5.0, y)
+        };
+
+
+        // Act
+        let collision = space_object.check_collision(&other);
+
+        // Assert
+        assert!(collision);
+    }
+
+    #[test]
+    fn check_collision_should_return_false_when_the_objects_y_is_closer_than_min_distance() {
+        // Arrange
+        let (x, y) = (100.0, 100.0);
+       
+        let space_object = DummyObject {
+            position: (x, y)
+        };
+
+        let other = DummyObject {
+            position: (x , y + MIN_DISTANCE - 1.0)
+        };
+
+
+        // Act
+        let collision = space_object.check_collision(&other);
+
+        // Assert
+        assert!(collision);
     }
 }

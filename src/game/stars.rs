@@ -1,5 +1,5 @@
 use rand::{thread_rng, Rng};
-use crate::game::space_objects::*;
+use crate::game::game_objects::*;
 
 #[derive(Copy, Clone)]
 pub struct Star {
