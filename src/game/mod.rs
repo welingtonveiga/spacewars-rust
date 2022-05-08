@@ -15,16 +15,27 @@ mod hero;
 mod enemy;
 mod stars;
 
+
+type GameScore = u32;
+
 #[derive(Copy, Clone)]
-pub enum GameScore {
-    Score(u32),
-    GameOver(u32),
+enum Scene {
+    StartGame,
+    InGame,
+    GameOver
 }
 
-impl GameScore {
+impl Scene {
+    fn is_in_game(&self) -> bool {
+        match *self {
+            Scene::InGame => true,
+            _ => false,
+        }
+    }
+
     fn is_game_over(&self) -> bool {
         match *self {
-            GameScore::GameOver(_) => true,
+            Scene::GameOver => true,
             _ => false,
         }
     }
@@ -35,16 +46,20 @@ pub struct Game {
     hero: Hero,
     enemies: Vec<Enemy>,
     background_stars: Vec<Star>,
-    score: GameScore
+    score: GameScore,
+    scene: Scene,
+    count: u64,
 }
 
 impl Game {
     pub const STAR_COUNT: i32 = 100;
-    pub const SCORE_TEXT_COLOR: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
-    pub const SCORE_TEXT_SIZE: u32 = 32;
+    pub const TEXT_COLOR: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
+    pub const TEXT_SIZE: u32 = 32;
     pub const SCORE_TEXT_POSITION: Position = (30.0 , 30.0);
-    pub const GAME_OVER_POSITION_PADDING: f64 = 64.0;
-    pub const FINAL_SCORE_PADDING: f64 = 32.0;
+    pub const GAME_OVER_POSITION_LEFT_PADDING: f64 = 100.0;
+    pub const FINAL_SCORE_LEFT_PADDING: f64 = 80.0;
+    pub const FINAL_SCORE_TOP_PADDING: f64 = 32.0;
+    pub const START_GAME_TEXT_PADDING: f64 = 200.0;
     pub const ENEMY_FREQUENCY: f64 = 0.015;
     pub const POINTS: u32 = 10;
 
@@ -60,7 +75,68 @@ impl Game {
             hero: Hero::new(screen_size),
             enemies: Vec::new(),
             background_stars: stars,
-            score: GameScore::Score(0),
+            score: 0,
+            scene: Scene::StartGame,
+            count: 0,
+        }
+    }
+
+    pub fn next_turn(&mut self) {    
+        self.inc_counter();    
+        self.background_stars_movement();
+
+        if self.scene.is_in_game() {
+            self.generate_enemies();
+            self.enemies_action();   
+            self.player_action();
+            
+            self.update_score();
+        }
+        
+    }
+
+    pub fn space_objects(&self) -> Vec<Box<& dyn SpaceObject>> {
+        let mut objects:Vec<Box<& dyn SpaceObject>> = vec![];
+
+        for star in &self.background_stars {            
+            objects.push(Box::new(star));
+        }
+
+        if self.scene.is_in_game() {
+            for enemy in &self.enemies {
+                objects.append(&mut enemy.spaceship().as_game_objects());         
+            }
+    
+            if !self.hero.is_destroyed() {
+                objects.append(&mut self.hero.spaceship().as_game_objects());
+            }            
+        }
+        
+        objects  
+    }
+
+    pub fn texts(&self) -> Vec<GameText> {
+        return match self.scene {
+            Scene::InGame => self.in_game_text(),
+            Scene::StartGame => self.start_game_text(),
+            Scene::GameOver => self.game_over_text()
+        }       
+    }
+
+    pub fn move_player(&mut self, direction: Direction) {
+        self.hero.move_to(direction);
+    }
+
+    pub fn fire_player_attack(&mut self) {
+        self.hero.attack();        
+    }  
+
+    pub fn key_pressed(&mut self) {
+        match self.scene {
+            Scene::StartGame => {
+                self.scene = Scene::InGame;
+            }
+            _ => {}
         }
     }
 
@@ -89,108 +165,83 @@ impl Game {
         self.hero.action();
     }
 
-    fn current_score(&self) -> u32 {
-        return match self.score {
-            GameScore::Score(score) => score,
-            GameScore::GameOver(score) => score,
-        };
-    }
-
     fn update_score(&mut self)  { 
-        let mut score = self.current_score();
-
-        if self.score.is_game_over() {
+        if self.scene.is_game_over() {
             return;
         }
 
         for enemy in self.enemies.iter_mut() {
             if enemy.hits(&mut self.hero) {
-                self.score = GameScore::GameOver(score);
+                self.scene = Scene::GameOver;
                 return;
             }
 
             if self.hero.hits(enemy) {
-                score += Game::POINTS;
+                self.score += Game::POINTS;
             }
         }
-
-       self.score = GameScore::Score(score);
     }
 
-    fn score_as_text(&self) -> Vec<GameText> {        
-        return match self.score {
-            GameScore::Score(points) => vec![
+    fn game_over_text(&self) -> Vec<GameText> {
+        let (screen_x, screen_y) = self.screen_size;
+        let game_over_pos_x = screen_x/2.0 - Game::GAME_OVER_POSITION_LEFT_PADDING;
+        let game_over_pos_y = screen_y/2.0;
+
+        let final_score_pos_x = screen_x/2.0 - Game::FINAL_SCORE_LEFT_PADDING;
+        let final_score_pos_y = screen_y/2.0 + Game::FINAL_SCORE_TOP_PADDING;
+
+        vec![
+            GameText::new(
+                String::from("Game Over!"),
+                Game::TEXT_COLOR,
+                Game::TEXT_SIZE,
+                (game_over_pos_x, game_over_pos_y)
+            ),
+            GameText::new(
+                format!("Score: {}", self.score),
+                Game::TEXT_COLOR,
+                Game::TEXT_SIZE,
+                (final_score_pos_x, final_score_pos_y)
+            )                
+        ]        
+    }
+
+    fn in_game_text(&self) -> Vec<GameText> {        
+        vec![
+            GameText::new(
+                format!("Score: {}", self.score),
+                Game::TEXT_COLOR,
+                Game::TEXT_SIZE,
+                Game::SCORE_TEXT_POSITION
+            )
+        ]
+    }
+
+    fn start_game_text(&self) -> Vec<GameText> {          
+        let show = self.count % 20 < 15;        
+
+        return if show {
+            let (screen_x, screen_y) = self.screen_size;
+
+            vec![
                 GameText::new(
-                    format!("Score: {}", points),
-                    Game::SCORE_TEXT_COLOR,
-                    Game::SCORE_TEXT_SIZE,
-                    Game::SCORE_TEXT_POSITION
+                    String::from("Press Any Button to Start..."),
+                    Game::TEXT_COLOR,
+                    Game::TEXT_SIZE,
+                    (screen_x/2.0 - Game::START_GAME_TEXT_PADDING,  screen_y/2.0)
                 )
-            ],
-            GameScore::GameOver(points) => {
-                let (screen_x, screen_y) = self.screen_size;
-                let game_over_pos_x = screen_x/2.0 - Game::GAME_OVER_POSITION_PADDING;
-                let game_over_pos_y = screen_y/2.0;
-
-                let final_score_pos_x = game_over_pos_x;
-                let final_score_pos_y = screen_y/2.0 + Game::FINAL_SCORE_PADDING;
-
-                vec![
-                    GameText::new(
-                        String::from("Game Over!"),
-                        Game::SCORE_TEXT_COLOR,
-                        Game::SCORE_TEXT_SIZE,
-                        (game_over_pos_x, game_over_pos_y)
-                    ),
-                    GameText::new(
-                        format!("Score: {}", points),
-                        Game::SCORE_TEXT_COLOR,
-                        Game::SCORE_TEXT_SIZE,
-                        (final_score_pos_x, final_score_pos_y)
-                    )                
-                ]
-            }
-        };
+            ]
+        } else {
+            Vec::new()
+        }        
     }
-
-    pub fn next_turn(&mut self) {        
-        self.background_stars_movement();
-        self.generate_enemies();
-        self.enemies_action();   
-        self.player_action();
-        
-        self.update_score();
-    }
-
-    pub fn space_objects(&self) -> Vec<Box<& dyn SpaceObject>> {
-        let mut objects:Vec<Box<& dyn SpaceObject>> = vec![];
-
-        for star in &self.background_stars {            
-            objects.push(Box::new(star));
+    
+    fn inc_counter(&mut self) {
+        let new_count = self.count.checked_add(1);
+        match new_count {
+            Some(result) => self.count = result,
+            None => self.count = 0,
         }
-
-        for enemy in &self.enemies {
-            objects.append(&mut enemy.spaceship().as_game_objects());         
-        }
-
-        if !self.hero.is_destroyed() {
-            objects.append(&mut self.hero.spaceship().as_game_objects());
-        }
-        
-        objects  
     }
-
-
-    pub fn texts(&self) -> Vec<GameText> {
-       self.score_as_text()
-    }
-
-    pub fn move_player(&mut self, direction: Direction) {
-        self.hero.move_to(direction);
-    }
-
-    pub fn fire_player_attack(&mut self) {
-        self.hero.attack();        
-    }      
 
 }

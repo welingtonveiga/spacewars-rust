@@ -5,8 +5,10 @@ use opengl_graphics::{GlGraphics, GlyphCache};
 
 use crate::game::{Game, Direction};
 
+
+
 pub struct Presenter {
-    game:  Game,      
+    game:  Game,   
 }
 
 impl Presenter {
@@ -25,7 +27,7 @@ impl Presenter {
                 .draw(&object.coord(), &context.draw_state, context.transform, graphics);   
         }     
 
-        for  text in self.game.texts().iter() {  
+        for text in self.game.texts().iter() {  
             let (position_x, position_y) = text.position();
             text::Text::new_color(text.color(), text.font_size()).draw(
                 &text.content(),
@@ -34,7 +36,7 @@ impl Presenter {
                 context.trans(position_x, position_y).transform, 
                 graphics
             ).unwrap(); 
-        }       
+        }   
     }
 
     pub fn event<E: GenericEvent>(&mut self, e: &E) {
@@ -44,6 +46,8 @@ impl Presenter {
         }
         
         if let Some(Button::Keyboard(key)) = e.press_args() {
+            self.key_pressed();
+
             match key {
                 Key::Right => self.move_player(Direction::LEFT),
                 Key::Left => self.move_player(Direction::RIGHT),   
@@ -59,6 +63,10 @@ impl Presenter {
 
     pub fn fire_attack(&mut self) {
         self.game.fire_player_attack();
+    }
+
+    pub fn key_pressed(&mut self) {
+        self.game.key_pressed()
     }
 }
 
