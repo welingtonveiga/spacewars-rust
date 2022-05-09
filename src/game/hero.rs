@@ -1,7 +1,7 @@
 use crate::game::game_objects::*;
 use crate::game::player::*;
 use crate::game::spaceship::*;
-use std::time::{Instant};
+use std::time::Instant;
 
 pub struct Hero {
     spaceship: Spaceship,
@@ -19,19 +19,19 @@ impl Hero {
         let (width, height) = screen_size;
         Hero {
             last_attack: None,
-            spaceship: Spaceship::new (
-                (width/2.0, height-30.0),
+            spaceship: Spaceship::new(
+                (width / 2.0, height - 30.0),
                 Hero::DIRECTION,
                 screen_size,
                 Hero::COLOR,
-                Hero::SIZE 
-            )
+                Hero::SIZE,
+            ),
         }
     }
 
     pub fn move_to(&mut self, direction: Direction) {
         let (width, _) = self.spaceship.screen_size();
-        let (cur_x, cur_y) =  self.spaceship.position();
+        let (cur_x, cur_y) = self.spaceship.position();
         let new_x = match direction {
             Direction::LEFT => min(cur_x + Hero::SPEED, width),
             _ => max(cur_x - Hero::SPEED, 0.0),
@@ -45,19 +45,18 @@ impl Hero {
         }
     }
 
-    fn should_attack(&mut self, threshold: u64) -> bool {  
-        if  let Some(last_attack) =  self.last_attack {
+    fn should_attack(&mut self, threshold: u64) -> bool {
+        if let Some(last_attack) = self.last_attack {
             if last_attack.elapsed().as_millis() < (threshold as u128) {
-                return false
-             }
+                return false;
+            }
         }
-        self.last_attack = Some(Instant::now());   
+        self.last_attack = Some(Instant::now());
         true
     }
 }
 
 impl Player for Hero {
-
     fn spaceship(&self) -> &Spaceship {
         &self.spaceship
     }
@@ -67,25 +66,24 @@ impl Player for Hero {
     }
 
     fn action(&mut self) {
-        self.spaceship.update_shot_position();            
+        self.spaceship.update_shot_position();
     }
 }
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::time::{Duration};
     use crate::game::spaceship::tests::*;
+    use std::time::Duration;
 
     #[test]
     fn attack_should_fire_spaceship_shot_on_the_first_attack() {
         // Arrange
         let mut hero = Hero::new((800.0, 600.0));
-    
+
         // Act
         hero.attack();
-    
+
         // Assert
         assert_eq!(spacheship_shots(hero.spaceship).len(), 1);
     }
@@ -94,7 +92,7 @@ mod tests {
     fn last_attack_should_start_from_none() {
         // Arrange
         let hero = Hero::new((800.0, 600.0));
-    
+
         // Assert
         assert_eq!(hero.last_attack, None);
     }
@@ -102,8 +100,8 @@ mod tests {
     #[test]
     fn last_attack_should_be_defined_after_first_attack() {
         // Arrange
-        let mut hero = Hero::new((800.0, 600.0));      
-        
+        let mut hero = Hero::new((800.0, 600.0));
+
         // Act
         hero.attack();
 
@@ -117,7 +115,7 @@ mod tests {
         let threshould = Duration::from_millis(Hero::ATTACK_THRESHOLD + 1);
         let last_attack = Instant::now().checked_sub(threshould);
 
-        let mut hero = Hero::new((800.0, 600.0));        
+        let mut hero = Hero::new((800.0, 600.0));
         hero.last_attack = last_attack;
 
         // Act
@@ -133,7 +131,7 @@ mod tests {
         let threshould = Duration::from_millis(1);
         let last_attack = Instant::now().checked_sub(threshould);
 
-        let mut hero = Hero::new((800.0, 600.0));        
+        let mut hero = Hero::new((800.0, 600.0));
         hero.last_attack = last_attack;
 
         // Act
@@ -141,15 +139,15 @@ mod tests {
 
         // Assert
         assert_eq!(spacheship_shots(hero.spaceship).len(), 0);
-    }   
-    
+    }
+
     #[test]
     fn attack_should_add_not_update_last_attack_whem_cannot_attack() {
         // Arrange
         let threshould = Duration::from_millis(1);
         let last_attack = Instant::now().checked_sub(threshould);
 
-        let mut hero = Hero::new((800.0, 600.0));        
+        let mut hero = Hero::new((800.0, 600.0));
         hero.last_attack = last_attack;
 
         // Act
@@ -159,4 +157,3 @@ mod tests {
         assert_eq!(hero.last_attack, last_attack);
     }
 }
-

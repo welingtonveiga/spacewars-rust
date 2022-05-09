@@ -2,11 +2,10 @@ use crate::game::game_objects::*;
 use crate::game::spaceship::*;
 
 pub trait Player {
-
     fn spaceship(&self) -> &Spaceship;
 
     fn spaceship_mut(&mut self) -> &mut Spaceship;
-    
+
     fn action(&mut self);
 
     fn hits(&self, other: &mut dyn Player) -> bool {

@@ -8,19 +8,24 @@ pub struct Spaceship {
     screen_size: ScreenSize,
     color: Color,
     size: f64,
-    shots: Vec<Shot>
+    shots: Vec<Shot>,
 }
 
 impl Spaceship {
-    pub fn new(position: Position, direction: Direction, screen_size: ScreenSize,
-                color: Color, size: f64) -> Spaceship {
+    pub fn new(
+        position: Position,
+        direction: Direction,
+        screen_size: ScreenSize,
+        color: Color,
+        size: f64,
+    ) -> Spaceship {
         Spaceship {
             destroyed: false,
             position: position,
             direction: direction,
             screen_size: screen_size,
             color: color,
-            size: size ,
+            size: size,
             shots: Vec::new(),
         }
     }
@@ -29,18 +34,15 @@ impl Spaceship {
         self.screen_size
     }
 
-
     pub fn move_to(&mut self, position: Position) {
         self.position = position;
     }
 
     pub fn update_shot_position(&mut self) {
         let screen_size = self.screen_size();
-        
-        self.shots.iter_mut()
-            .for_each(|shot| shot.action());
-        self.shots
-            .retain(|shot| shot.is_visible(screen_size));
+
+        self.shots.iter_mut().for_each(|shot| shot.action());
+        self.shots.retain(|shot| shot.is_visible(screen_size));
     }
 
     pub fn fire(&mut self) {
@@ -50,15 +52,15 @@ impl Spaceship {
         self.shots.push(Shot::new(position, direction));
     }
 
-    pub fn as_game_objects(&self) -> Vec<Box<& dyn SpaceObject>> {
-        let mut objects:Vec<Box<& dyn SpaceObject>> = vec![];
-        
+    pub fn as_game_objects(&self) -> Vec<Box<&dyn SpaceObject>> {
+        let mut objects: Vec<Box<&dyn SpaceObject>> = vec![];
+
         self.shots
             .iter()
             .for_each(|shot| objects.push(Box::new(shot)));
-        
+
         objects.push(Box::new(self));
-        
+
         objects
     }
 
@@ -67,9 +69,7 @@ impl Spaceship {
     }
 
     pub fn hits(&self, other: &Spaceship) -> bool {
-        !other.is_destroyed() 
-            && self.shots.iter()
-                .any(|shot| other.check_collision(shot))
+        !other.is_destroyed() && self.shots.iter().any(|shot| other.check_collision(shot))
     }
 
     pub fn is_destroyed(&self) -> bool {
@@ -79,7 +79,7 @@ impl Spaceship {
 
 impl SpaceObject for Spaceship {
     fn color(&self) -> Color {
-       self.color
+        self.color
     }
 
     fn direction(&self) -> Direction {
@@ -89,7 +89,7 @@ impl SpaceObject for Spaceship {
     fn size(&self) -> f64 {
         self.size
     }
-    
+
     fn position(&self) -> Position {
         self.position
     }
@@ -109,20 +109,20 @@ pub mod tests {
         let (width, height) = (100.0, 100.0);
         let (x, y) = (50.0, 50.0);
 
-        let spaceship =  Spaceship::new (
+        let spaceship = Spaceship::new(
             (x, y),
             Direction::UP,
             (width, height),
             [1.0, 1.0, 1.0, 1.0],
-            20.0
+            20.0,
         );
 
-        let mut other =  Spaceship::new (
-            (x+100.0, y+100.0),
+        let mut other = Spaceship::new(
+            (x + 100.0, y + 100.0),
             Direction::UP,
             (width, height),
             [1.0, 1.0, 1.0, 1.0],
-            20.0
+            20.0,
         );
 
         other.destroyed = true;
@@ -141,23 +141,25 @@ pub mod tests {
         let (x, y) = (50.0, 50.0);
         let (other_x, other_y) = (50.0, 50.0);
 
-        let mut spaceship =  Spaceship::new (
+        let mut spaceship = Spaceship::new(
             (x, y),
             Direction::UP,
             (width, height),
             [1.0, 1.0, 1.0, 1.0],
-            20.0
+            20.0,
         );
 
-        let other =  Spaceship::new (
+        let other = Spaceship::new(
             (other_x, other_y),
             Direction::UP,
             (width, height),
             [1.0, 1.0, 1.0, 1.0],
-            20.0
+            20.0,
         );
 
-        spaceship.shots.push(Shot::new((other_x, other_y), Direction::DOWN));
+        spaceship
+            .shots
+            .push(Shot::new((other_x, other_y), Direction::DOWN));
 
         // Act
         let hits = spaceship.hits(&other);
@@ -166,27 +168,30 @@ pub mod tests {
         assert_eq!(hits, true);
     }
     #[test]
-    fn hits_should_return_false_whe_the_other_destroyed_spaceship_is_at_the_same_position_as_a_shot() {
+    fn hits_should_return_false_whe_the_other_destroyed_spaceship_is_at_the_same_position_as_a_shot(
+    ) {
         // Arrange
         let (width, height) = (100.0, 100.0);
         let (x, y) = (50.0, 50.0);
         let (other_x, other_y) = (50.0, 50.0);
 
-        let mut spaceship =  Spaceship::new (
+        let mut spaceship = Spaceship::new(
             (x, y),
             Direction::UP,
             (width, height),
             [1.0, 1.0, 1.0, 1.0],
-            20.0
+            20.0,
         );
-        spaceship.shots.push(Shot::new((other_x, other_y), Direction::DOWN));
+        spaceship
+            .shots
+            .push(Shot::new((other_x, other_y), Direction::DOWN));
 
-        let mut other =  Spaceship::new (
+        let mut other = Spaceship::new(
             (other_x, other_y),
             Direction::UP,
             (width, height),
             [1.0, 1.0, 1.0, 1.0],
-            20.0
+            20.0,
         );
         other.destroyed = true;
 

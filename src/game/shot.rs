@@ -3,7 +3,7 @@ use crate::game::game_objects::*;
 #[derive(Copy, Clone, Debug)]
 pub struct Shot {
     position: Position,
-    direction: Direction
+    direction: Direction,
 }
 
 impl Shot {
@@ -14,7 +14,7 @@ impl Shot {
     pub fn new(position: Position, direction: Direction) -> Shot {
         Shot {
             position: position,
-            direction: direction
+            direction: direction,
         }
     }
 
@@ -23,14 +23,13 @@ impl Shot {
         let new_y = match self.direction() {
             Direction::UP => cur_y - Shot::SPEED,
             Direction::DOWN => cur_y + Shot::SPEED,
-            direction => panic!("Unexpected Durection {:?}", direction)
+            direction => panic!("Unexpected Durection {:?}", direction),
         };
         self.position = (cur_x, new_y);
     }
 }
 
 impl SpaceObject for Shot {
-    
     fn color(&self) -> Color {
         Shot::COLOR
     }
@@ -42,12 +41,11 @@ impl SpaceObject for Shot {
     fn size(&self) -> f64 {
         Shot::SIZE
     }
-    
+
     fn position(&self) -> Position {
         self.position
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -112,5 +110,4 @@ mod tests {
         // Act
         shot.action();
     }
-
 }

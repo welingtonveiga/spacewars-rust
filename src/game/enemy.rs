@@ -1,7 +1,7 @@
-use rand::{thread_rng, Rng};
 use crate::game::game_objects::*;
 use crate::game::player::*;
 use crate::game::spaceship::*;
+use rand::{thread_rng, Rng};
 
 pub struct Enemy {
     spaceship: Spaceship,
@@ -13,38 +13,37 @@ impl Enemy {
     pub const COLOR: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
     pub const X_SPEED: f64 = 45.0;
     pub const Y_SPEED: f64 = 1.0;
-    pub const Y_START: f64 = -15.0;    
+    pub const Y_START: f64 = -15.0;
     pub const SIZE: f64 = 20.0;
     pub const DIRECTION: Direction = Direction::DOWN;
-    
-    pub fn new(screen_size: ScreenSize)-> Enemy {
+
+    pub fn new(screen_size: ScreenSize) -> Enemy {
         let mut random = thread_rng();
 
         let (width, _) = screen_size;
         let min_x = Enemy::SIZE;
         let max_x = width - Enemy::SIZE;
-        let gen_x = random.gen_range(min_x..max_x);       
-       
-       Enemy {
-        attack_rate: Enemy::INITIAL_ATTACK_RATE,
-        spaceship: Spaceship::new (
+        let gen_x = random.gen_range(min_x..max_x);
+
+        Enemy {
+            attack_rate: Enemy::INITIAL_ATTACK_RATE,
+            spaceship: Spaceship::new(
                 (f64::from(gen_x), Enemy::Y_START),
                 Enemy::DIRECTION,
                 screen_size,
                 Enemy::COLOR,
-                Enemy::SIZE 
-            )
+                Enemy::SIZE,
+            ),
         }
     }
 
-
-    fn calculate_x_move(&self)-> f64 {
+    fn calculate_x_move(&self) -> f64 {
         let mut random = thread_rng();
         let (curr_x, _) = self.spaceship.position();
-            
-        let movement = if  random.gen_bool(0.05) {
-            let  move_range = 2.0 * Enemy::X_SPEED;
-            random.gen_range(0.0..move_range) - Enemy::X_SPEED        
+
+        let movement = if random.gen_bool(0.05) {
+            let move_range = 2.0 * Enemy::X_SPEED;
+            random.gen_range(0.0..move_range) - Enemy::X_SPEED
         } else {
             0.0
         };
@@ -52,7 +51,7 @@ impl Enemy {
         curr_x + movement
     }
 
-    fn calculate_y_move(&self)-> f64 {
+    fn calculate_y_move(&self) -> f64 {
         let (_, curr_y) = self.spaceship.position();
         curr_y + Enemy::Y_SPEED
     }
@@ -60,23 +59,21 @@ impl Enemy {
     fn move_spaceship(&mut self) {
         let (width, _) = self.spaceship.screen_size();
 
-        let new_x =  max(min(self.calculate_x_move(), width), 0.0);
-        let new_y =  self.calculate_y_move();
-        
+        let new_x = max(min(self.calculate_x_move(), width), 0.0);
+        let new_y = self.calculate_y_move();
+
         self.spaceship.move_to((new_x, new_y));
     }
 
     fn attack(&mut self) {
-        let mut random = thread_rng();       
-        if random.gen_bool(self.attack_rate)  {
+        let mut random = thread_rng();
+        if random.gen_bool(self.attack_rate) {
             self.spaceship.fire();
         }
     }
 }
 
-
 impl Player for Enemy {
-
     fn spaceship(&self) -> &Spaceship {
         &self.spaceship
     }
@@ -88,10 +85,9 @@ impl Player for Enemy {
     fn action(&mut self) {
         self.move_spaceship();
         self.attack();
-        self.spaceship.update_shot_position();        
+        self.spaceship.update_shot_position();
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -106,7 +102,7 @@ mod tests {
 
         // Act
         enemy.attack();
-    
+
         // Assert
         assert_eq!(spacheship_shots(enemy.spaceship).len(), 1);
     }
@@ -119,7 +115,7 @@ mod tests {
 
         // Act
         enemy.attack();
-    
+
         // Assert
         assert_eq!(spacheship_shots(enemy.spaceship).len(), 0);
     }
