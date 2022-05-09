@@ -21,10 +21,8 @@ const WINDOW_HEIGHT: f64 = 600.0;
 const FRAMES_PER_SECOND: u64 = 40;
 
 fn main() {
-    // Change this to OpenGL::V2_1 if not working.
     let opengl = OpenGL::V3_2;
 
-    // Create an Glutin window.
     let mut window: Window = WindowSettings::new("Space Wars", [WINDOW_WIDTH, WINDOW_HEIGHT])
         .graphics_api(opengl)
         .fullscreen(false)
@@ -35,7 +33,6 @@ fn main() {
 
     let mut gl = GlGraphics::new(opengl);
 
-    // Create a new game and run it.
     let game = Game::new(WINDOW_WIDTH, WINDOW_HEIGHT);
     let mut presenter = Presenter::new(game);
 
