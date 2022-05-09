@@ -2,7 +2,7 @@ This project is a simple clono of the classic “space invaders” implemented i
 
 ![spaceship](docs/spacewars.gif)
 
-The UI uses Piston (https://www.piston.rs/) basic 2D graphics, the the implementation separates between the presenter and the actual game, so that a port to web assembly can be added in the future.
+The UI uses Piston (https://www.piston.rs/) basic 2D graphics, but the game implementation is separated from the presenter, so that a port to web assembly can be added in the future.
 
 TO DO List
 
