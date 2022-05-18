@@ -1553,7 +1553,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "spacewars"
+name = "spacewars_game"
+version = "0.1.0"
+dependencies = [
+ "rand",
+]
+
+[[package]]
+name = "spacewars_opengl"
 version = "0.1.0"
 dependencies = [
  "find_folder",
@@ -1561,7 +1568,17 @@ dependencies = [
  "piston2d-graphics",
  "piston2d-opengl_graphics",
  "pistoncore-glutin_window",
+ "spacewars_game",
+]
+
+[[package]]
+name = "spacewars_wasm"
+version = "0.1.0"
+dependencies = [
+ "getrandom",
  "rand",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -1822,6 +1839,16 @@ dependencies = [
  "dlib 0.5.0",
  "lazy_static",
  "pkg-config",
+]
+
+[[package]]
+name = "web-sys"
+version = "0.3.57"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b17e741662c70c8bd24ac5c5b18de314a2c26c32bf8346ee1e6f53de919c283"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
 ]
 
 [[package]]

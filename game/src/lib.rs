@@ -1,11 +1,11 @@
 use rand::{thread_rng, Rng};
 
-use crate::game::enemy::*;
-use crate::game::game_objects::*;
-pub use crate::game::game_objects::{Color, Direction, SpaceObject};
-use crate::game::hero::*;
-use crate::game::player::*;
-use crate::game::stars::*;
+use crate::enemy::*;
+use crate::game_objects::*;
+pub use crate::game_objects::{Color, Direction, SpaceObject};
+use crate::hero::*;
+use crate::player::*;
+use crate::stars::*;
 
 mod enemy;
 mod game_objects;

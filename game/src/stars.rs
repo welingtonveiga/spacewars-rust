@@ -1,4 +1,4 @@
-use crate::game::game_objects::*;
+use crate::game_objects::*;
 use rand::{thread_rng, Rng};
 
 #[derive(Copy, Clone)]

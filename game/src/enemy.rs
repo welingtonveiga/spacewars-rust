@@ -1,6 +1,6 @@
-use crate::game::game_objects::*;
-use crate::game::player::*;
-use crate::game::spaceship::*;
+use crate::game_objects::*;
+use crate::player::*;
+use crate::spaceship::*;
 use rand::{thread_rng, Rng};
 
 pub struct Enemy {
@@ -92,7 +92,7 @@ impl Player for Enemy {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::game::spaceship::tests::*;
+    use crate::spaceship::tests::*;
 
     #[test]
     fn attack_should_fire_spaceship_when_rate_is_one() {

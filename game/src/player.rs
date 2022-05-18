@@ -1,5 +1,5 @@
-use crate::game::game_objects::*;
-use crate::game::spaceship::*;
+use crate::game_objects::*;
+use crate::spaceship::*;
 
 pub trait Player {
     fn spaceship(&self) -> &Spaceship;

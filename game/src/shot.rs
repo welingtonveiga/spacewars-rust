@@ -1,4 +1,4 @@
-use crate::game::game_objects::*;
+use crate::game_objects::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Shot {

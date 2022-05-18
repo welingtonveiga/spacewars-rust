@@ -2,16 +2,14 @@ use graphics::{text, Context, Polygon, Transformed};
 use opengl_graphics::{GlGraphics, GlyphCache};
 use piston::input::{Button, GenericEvent, Key, MouseButton};
 
-use crate::game::{Direction, Game};
+use spacewars_game::{Direction, Game};
 
 
-#[cfg(not(wasm))]
 pub struct Presenter {
     game: Game,
 }
 
 
-#[cfg(not(wasm))]
 impl Presenter {
     pub fn new(game: Game) -> Presenter {
         Presenter { game: game }

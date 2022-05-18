@@ -1,5 +1,5 @@
-use crate::game::game_objects::*;
-use crate::game::shot::*;
+use crate::game_objects::*;
+use crate::shot::*;
 
 pub struct Spaceship {
     destroyed: bool,

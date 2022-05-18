@@ -1,6 +1,6 @@
-use crate::game::game_objects::*;
-use crate::game::player::*;
-use crate::game::spaceship::*;
+use crate::game_objects::*;
+use crate::player::*;
+use crate::spaceship::*;
 use std::time::Instant;
 
 pub struct Hero {
@@ -73,7 +73,7 @@ impl Player for Hero {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::game::spaceship::tests::*;
+    use crate::spaceship::tests::*;
     use std::time::Duration;
 
     #[test]

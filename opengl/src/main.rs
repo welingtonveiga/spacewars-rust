@@ -10,8 +10,8 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::WindowSettings;
 
-use crate::game::Game;
-use crate::opengl::presenter::Presenter;
+use spacewars_game::Game;
+use crate::presenter::Presenter;
 
 mod presenter;
 
@@ -19,8 +19,7 @@ const WINDOW_WIDTH: f64 = 800.0;
 const WINDOW_HEIGHT: f64 = 600.0;
 const FRAMES_PER_SECOND: u64 = 40;
 
-#[cfg(not(wasm))]
-pub fn bootstrap() {
+pub fn main() {
     let opengl = OpenGL::V3_2;
 
     let mut window: Window = WindowSettings::new("Space Wars", [WINDOW_WIDTH, WINDOW_HEIGHT])
@@ -42,7 +41,7 @@ pub fn bootstrap() {
     let mut events = Events::new(event_settings);
 
     let texture_settings = TextureSettings::new().filter(Filter::Nearest);
-    let ref mut glyphs = GlyphCache::new("assets/NovaSquare-Regular.ttf", (), texture_settings)
+    let ref mut glyphs = GlyphCache::new("./assets/NovaSquare-Regular.ttf", (), texture_settings)
         .expect("Could not load font");
 
     while let Some(e) = events.next(&mut window) {
