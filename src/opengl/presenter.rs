@@ -4,10 +4,14 @@ use piston::input::{Button, GenericEvent, Key, MouseButton};
 
 use crate::game::{Direction, Game};
 
+
+#[cfg(not(wasm))]
 pub struct Presenter {
     game: Game,
 }
 
+
+#[cfg(not(wasm))]
 impl Presenter {
     pub fn new(game: Game) -> Presenter {
         Presenter { game: game }
