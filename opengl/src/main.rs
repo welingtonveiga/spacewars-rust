@@ -10,8 +10,8 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::WindowSettings;
 
-use spacewars_game::Game;
 use crate::presenter::Presenter;
+use spacewars_game::Game;
 
 mod presenter;
 

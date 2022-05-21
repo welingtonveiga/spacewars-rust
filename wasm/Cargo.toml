@@ -8,9 +8,13 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-rand = "0.8.5"
+spacewars_game = { path = "../game" }
 wasm-bindgen = "0.2.80"
+js-sys = "0.3.57"
 getrandom = { version = "0.2", features = ["js"] }
+colorsys = "0.6.5"
+console_error_panic_hook = "0.1.7"
+instant = { version = "0.1", features = [ "stdweb", "wasm-bindgen" ] }
 
 [dependencies.web-sys]
 version = "0.3.4"
@@ -20,4 +24,6 @@ features = [
   'Element',
   'HtmlCanvasElement',
   'Window',
+  'KeyboardEvent',
+  'console'
 ]

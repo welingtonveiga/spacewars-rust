@@ -2,7 +2,7 @@ use rand::{thread_rng, Rng};
 
 use crate::enemy::*;
 use crate::game_objects::*;
-pub use crate::game_objects::{Color, Direction, SpaceObject};
+pub use crate::game_objects::{Color, Direction, GameText, ScreenSize, SpaceObject};
 use crate::hero::*;
 use crate::player::*;
 use crate::stars::*;
@@ -78,6 +78,10 @@ impl Game {
             scene: Scene::StartGame,
             count: 0,
         }
+    }
+
+    pub fn screen_size(&self) -> ScreenSize {
+        self.screen_size
     }
 
     pub fn next_turn(&mut self) {

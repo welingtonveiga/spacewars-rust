@@ -1,15 +1,16 @@
+use instant::SystemTime;
+
 use crate::game_objects::*;
 use crate::player::*;
 use crate::spaceship::*;
-use std::time::Instant;
 
 pub struct Hero {
     spaceship: Spaceship,
-    last_attack: Option<Instant>,
+    last_attack: Option<SystemTime>,
 }
 
 impl Hero {
-    pub const COLOR: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
+    pub const COLOR: Color = [1.0, 0.0, 0.0, 1.0];
     pub const SPEED: f64 = 30.0;
     pub const SIZE: f64 = 25.0;
     pub const DIRECTION: Direction = Direction::UP;
@@ -33,8 +34,8 @@ impl Hero {
         let (width, _) = self.spaceship.screen_size();
         let (cur_x, cur_y) = self.spaceship.position();
         let new_x = match direction {
-            Direction::LEFT => min(cur_x + Hero::SPEED, width),
-            _ => max(cur_x - Hero::SPEED, 0.0),
+            Direction::LEFT => min(cur_x - Hero::SPEED, width),
+            _ => max(cur_x + Hero::SPEED, 0.0),
         };
         self.spaceship.move_to((new_x, cur_y));
     }
@@ -47,11 +48,16 @@ impl Hero {
 
     fn should_attack(&mut self, threshold: u64) -> bool {
         if let Some(last_attack) = self.last_attack {
-            if last_attack.elapsed().as_millis() < (threshold as u128) {
+            let duration_since_last_attack = SystemTime::now()
+                .duration_since(last_attack)
+                .expect("Failed to calculate elapsed time since last attack")
+                .as_millis();
+
+            if duration_since_last_attack < (threshold as u128) {
                 return false;
             }
         }
-        self.last_attack = Some(Instant::now());
+        self.last_attack = Some(SystemTime::now());
         true
     }
 }
@@ -74,7 +80,7 @@ impl Player for Hero {
 mod tests {
     use super::*;
     use crate::spaceship::tests::*;
-    use std::time::Duration;
+    use instant::{Duration, SystemTime};
 
     #[test]
     fn attack_should_fire_spaceship_shot_on_the_first_attack() {
@@ -113,7 +119,7 @@ mod tests {
     fn attack_should_add_shot_if_last_attack_diff_is_greater_than_shooting_threshould() {
         // Arrange
         let threshould = Duration::from_millis(Hero::ATTACK_THRESHOLD + 1);
-        let last_attack = Instant::now().checked_sub(threshould);
+        let last_attack = SystemTime::now().checked_sub(threshould);
 
         let mut hero = Hero::new((800.0, 600.0));
         hero.last_attack = last_attack;
@@ -129,7 +135,7 @@ mod tests {
     fn attack_should_add_not_shot_if_last_attack_diff_is_smaller_than_shooting_threshould() {
         // Arrange
         let threshould = Duration::from_millis(1);
-        let last_attack = Instant::now().checked_sub(threshould);
+        let last_attack = SystemTime::now().checked_sub(threshould);
 
         let mut hero = Hero::new((800.0, 600.0));
         hero.last_attack = last_attack;
@@ -145,7 +151,7 @@ mod tests {
     fn attack_should_add_not_update_last_attack_whem_cannot_attack() {
         // Arrange
         let threshould = Duration::from_millis(1);
-        let last_attack = Instant::now().checked_sub(threshould);
+        let last_attack = SystemTime::now().checked_sub(threshould);
 
         let mut hero = Hero::new((800.0, 600.0));
         hero.last_attack = last_attack;

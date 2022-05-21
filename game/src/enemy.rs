@@ -10,7 +10,7 @@ pub struct Enemy {
 
 impl Enemy {
     pub const INITIAL_ATTACK_RATE: f64 = 0.01;
-    pub const COLOR: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
+    pub const COLOR: Color = [0.0, 0.0, 1.0, 1.0];
     pub const X_SPEED: f64 = 45.0;
     pub const Y_SPEED: f64 = 1.0;
     pub const Y_START: f64 = -15.0;

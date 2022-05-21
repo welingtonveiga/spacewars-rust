@@ -4,11 +4,9 @@ use piston::input::{Button, GenericEvent, Key, MouseButton};
 
 use spacewars_game::{Direction, Game};
 
-
 pub struct Presenter {
     game: Game,
 }
-
 
 impl Presenter {
     pub fn new(game: Game) -> Presenter {
@@ -50,8 +48,8 @@ impl Presenter {
             self.key_pressed();
 
             match key {
-                Key::Right => self.move_player(Direction::LEFT),
-                Key::Left => self.move_player(Direction::RIGHT),
+                Key::Right => self.move_player(Direction::RIGHT),
+                Key::Left => self.move_player(Direction::LEFT),
                 Key::Space => self.fire_attack(),
                 _ => {}
             }
