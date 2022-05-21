@@ -63,10 +63,10 @@ pub struct GameText {
 impl GameText {
     pub fn new(content: String, color: Color, font_size: FontSize, position: Position) -> GameText {
         GameText {
-            content: content,
-            color: color,
-            font_size: font_size,
-            position: position,
+            content,
+            color,
+            font_size,
+            position,
         }
     }
 

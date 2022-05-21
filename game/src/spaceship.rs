@@ -21,11 +21,11 @@ impl Spaceship {
     ) -> Spaceship {
         Spaceship {
             destroyed: false,
-            position: position,
-            direction: direction,
-            screen_size: screen_size,
-            color: color,
-            size: size,
+            position,
+            direction,
+            screen_size,
+            color,
+            size,
             shots: Vec::new(),
         }
     }

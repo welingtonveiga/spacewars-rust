@@ -10,7 +10,7 @@ pub struct Presenter {
 
 impl Presenter {
     pub fn new(game: Game) -> Presenter {
-        Presenter { game: game }
+        Presenter { game }
     }
 
     pub fn render(&mut self, context: Context, graphics: &mut GlGraphics, glyphs: &mut GlyphCache) {

@@ -24,7 +24,7 @@ impl Star {
         Star {
             size: f64::from(size),
             position: (f64::from(gen_x), f64::from(gen_y)),
-            screen_size: screen_size,
+            screen_size,
         }
     }
 

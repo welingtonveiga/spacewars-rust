@@ -13,8 +13,8 @@ impl Shot {
 
     pub fn new(position: Position, direction: Direction) -> Shot {
         Shot {
-            position: position,
-            direction: direction,
+            position,
+            direction,
         }
     }
 

@@ -1,4 +1,4 @@
-use console_error_panic_hook;
+
 use wasm_bindgen::prelude::*;
 
 use crate::presenter::Presenter;
@@ -80,6 +80,7 @@ fn game_loop(presenter: &Presenter, last_frame: f64) {
 #[wasm_bindgen(start)]
 pub fn start() {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
+    
     let document = web_sys::window().unwrap().document().unwrap();
     let canvas = document.get_element_by_id("canvas").unwrap();
     let canvas: web_sys::HtmlCanvasElement = canvas

@@ -70,7 +70,7 @@ impl Game {
             .collect();
 
         Game {
-            screen_size: screen_size,
+            screen_size,
             hero: Hero::new(screen_size),
             enemies: Vec::new(),
             background_stars: stars,
@@ -118,11 +118,11 @@ impl Game {
     }
 
     pub fn texts(&self) -> Vec<GameText> {
-        return match self.scene {
+        match self.scene {
             Scene::InGame => self.in_game_text(),
             Scene::StartGame => self.start_game_text(),
             Scene::GameOver => self.game_over_text(),
-        };
+        }
     }
 
     pub fn move_player(&mut self, direction: Direction) {
@@ -221,7 +221,7 @@ impl Game {
     fn start_game_text(&self) -> Vec<GameText> {
         let show = self.count % 20 < 15;
 
-        return if show {
+        if show {
             let (screen_x, screen_y) = self.screen_size;
 
             vec![GameText::new(
@@ -235,7 +235,7 @@ impl Game {
             )]
         } else {
             Vec::new()
-        };
+        }
     }
 
     fn inc_counter(&mut self) {

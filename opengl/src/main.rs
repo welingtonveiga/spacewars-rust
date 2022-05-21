@@ -41,7 +41,7 @@ pub fn main() {
     let mut events = Events::new(event_settings);
 
     let texture_settings = TextureSettings::new().filter(Filter::Nearest);
-    let ref mut glyphs = GlyphCache::new("./assets/NovaSquare-Regular.ttf", (), texture_settings)
+    let glyphs = &mut GlyphCache::new("./assets/NovaSquare-Regular.ttf", (), texture_settings)
         .expect("Could not load font");
 
     while let Some(e) = events.next(&mut window) {

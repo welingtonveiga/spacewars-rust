@@ -28,7 +28,7 @@ impl Enemy {
         Enemy {
             attack_rate: Enemy::INITIAL_ATTACK_RATE,
             spaceship: Spaceship::new(
-                (f64::from(gen_x), Enemy::Y_START),
+                (gen_x, Enemy::Y_START),
                 Enemy::DIRECTION,
                 screen_size,
                 Enemy::COLOR,
